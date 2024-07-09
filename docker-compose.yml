@@ -1,0 +1,29 @@
+version: '3'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  api:
+    # Build the web service using the Dockerfile
+    #
+    build: ./
+    ports:
+      - "5000:5000"
+    environment:
+      - MINIO_SERVER_ACCESS_KEY=minio-root-user
+      - MINIO_SERVER_SECRET_KEY=minio-root-password
+    networks:
+      - app-tier
+    depends_on:
+      - minio
+  minio:
+    image: 'bitnami/minio:latest'
+    ports:
+      - '9000:9000'
+    environment:
+      - MINIO_ROOT_USER=minio-root-user
+      - MINIO_ROOT_PASSWORD=minio-root-password
+    networks:
+      - app-tier
