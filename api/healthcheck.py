@@ -1,12 +1,9 @@
-from flask import Flask, request, jsonify
 from minio import Minio
 from minio.error import S3Error
 from redis import Redis
 from randimage import get_random_image
 from matplotlib import image
 import os
-
-app = Flask(__name__)
 
 minio_client = Minio(
     "minio:9000",
@@ -19,7 +16,6 @@ redis = Redis(host='redis', port=6379)
 
 bucket_name = "mybucket"
 
-@app.route('/')
 def store():
     try:
         count = redis.incr('hits')
@@ -36,4 +32,4 @@ def store():
 if __name__ == "__main__":
     if not minio_client.bucket_exists(bucket_name):
         minio_client.make_bucket(bucket_name)
-    app.run(host='0.0.0.0', port=5000)
+    store()
