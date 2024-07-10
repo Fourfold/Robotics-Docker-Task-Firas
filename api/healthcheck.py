@@ -18,14 +18,20 @@ bucket_name = "mybucket"
 
 def store():
     try:
+        # Get number of files and increment, then use it to specify filename
         count = redis.incr('hits')
         object_name = "randomImage" + str(count) + ".png"
 
+        # Generate random image and save it to the working directory
         img = get_random_image((256, 256))
         image.imsave("random_image.png", img)
+
+        # Upload the image to the MinIO database
         content = "/app/random_image.png"
         minio_client.fput_object(bucket_name, object_name, content)
+
         return f'There are currently {count} images in the bucket. Refresh the page to add another image.'
+    
     except S3Error as e:
         return 'An error occurred.'
 

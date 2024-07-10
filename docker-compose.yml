@@ -1,9 +1,11 @@
 version: '3'
 
+# Define bridge network
 networks:
   app-tier:
     driver: bridge
 
+# Define volumes 
 volumes:
   minio-volume:
   redis-volume:
@@ -15,6 +17,7 @@ services:
     ports:
       - "5000:5000"
     environment:
+      # These environment variables are used to access and write to the MinIO service
       - MINIO_SERVER_ACCESS_KEY=minio-root-user
       - MINIO_SERVER_SECRET_KEY=minio-root-password
     networks:
@@ -22,6 +25,7 @@ services:
     depends_on:
       - minio
       - redis
+    # Run healthcheck defined in the python script: healthcheck.py
     healthcheck:
       test: ["CMD", "python3", "/app/healthcheck.py"]
       interval: 60s
@@ -34,6 +38,7 @@ services:
     ports:
       - '9000:9000'
     environment:
+      # These environment variables are used to login to the MinIO service
       - MINIO_ROOT_USER=minio-root-user
       - MINIO_ROOT_PASSWORD=minio-root-password
     networks:
@@ -46,6 +51,9 @@ services:
     ports:
       - "6379:6379"
     environment:
+      # The REDIS_SAVE environment variable is used to to specify that the Redis service
+      # should save its data to the volume every 10 seconds if there is at least 1 file
+      # which is updated, hence the 10 and the 1.
       REDIS_SAVE: "10 1"
     networks:
       - app-tier
